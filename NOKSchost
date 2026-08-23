@@ -1,0 +1,764 @@
+local Players = game:GetService("Players")
+LocalPlayer = Players.LocalPlayer
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "NOKS_HUB"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0,370,0,270)
+MainFrame.Position = UDim2.new(0.35,0,0.4,0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(183,101,255)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0,8)
+MainCorner.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+العنوان.الأصل = الحاسوب المركزي
+Title.Position = UDim2.new(0,5,0,5)
+Title.Size = UDim2.new(1,-45,0,35)
+Title.BackgroundColor3 = Color3.fromRGB(0,120,255)
+Title.BorderSizePixel = 0
+Title.Font = Enum.Font.Cartoon
+Title.Text = "NOKS | HUB"
+_HUB"
+Title.TextScaled = true
+Title.TextColor3 = Color3.new(0,0,0)
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0,6)
+TitleCorner.Parent = Title
+
+local Close = Instance.new("TextButton")
+Close.Parent = MainFrame
+Close.Position = UDim2.new(1,-40,0,5)
+Close.Size = UDim2.new(0,35,0,35)
+Close.BackgroundColor3 = Color3.fromRGB(125,102,255)
+Close.BorderSizePixel = 0
+Close.Text = "X"
+Close.TextScaled = true
+Close.Font = Enum.Font.GothamBlack
+Close.TextColor3 = Color3.new(0,0,0)
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0,6)
+CloseCorner.Parent = Close
+
+Close.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+نهاية)
+
+local NextButton = Instance.new("TextButton")
+NextButton.Parte = MainFrame
+حجم زر التالي = UDim2.new(0,22,0,42)
+NextButton.Position = UDim2.new(1,2,0.39,0)
+NextButton.BackgroundColor3 = Color3.fromRGB(125,102,255)
+NextButton.BorderSizePixel = 0
+NextButton.Text = ">"
+NextButton.TextScaled = true
+NextButton.Font = Enum.Font.GothamBold
+NextButton.TextColor3 = Color3.new(0,0,0)
+
+local NextCorner = Instance.new("UICorner")
+NextCorner.CornerRadius = UDim.new(0,6)
+NextCorner.Parent = NextButton
+
+local PrevButton = Instance.new("TextButton")
+PrevButton.Parent = MainFrame
+PrevButton.Size = UDim2.new(0,22,0,42)
+PrevButton.Position = UDim2.new(1,2,0.57,0)
+PrevButton.BackgroundColor3 = Color3.fromRGB(125,102,255)
+PrevButton.BorderSizePixel = 0
+PrevButton.Text = "<"
+PrevButton.TextScaled = true
+PrevButton.Font = Enum.Font.GothamBold
+PrevButton.TextColor3 = Color3.new(0,0,0)
+
+local PrevCorner = Instance.new("UICorner")
+PrevCorner.CornerRadius = UDim.new(0,6)
+PrevCorner.Parent = PrevButton
+
+علامات التبويب المحلية = {}
+local CurrentTab = 1
+
+دالة محلية CreateTab(Index)
+	إذا كان Tabs[Index]
+		إرجاع علامات التبويب[الفهرس]
+	نهاية
+
+	local Scroll = Instance.new("ScrollingFrame")
+	Scroll.Parent = MainFrame
+	Scroll.Name = "Tab"..Index
+	Scroll.BackgroundTransparency = 1
+	Scroll.BorderSizePixel = 0
+	Scroll.Position = UDim2.new(0,5,0,45)
+	Scroll.Size = UDim2.new(1,-10,1,-50)
+	Scroll.ScrollBarThickness = 5
+	Scroll.CanvasSize = UDim2.new()
+	Scroll.Visible = false
+
+	local Layout = Instance.new("UIGridLayout")
+	Layout.Parent = Scroll
+	Layout.CellSize = UDim2.new(0,100,0,35)
+	Layout.CellPadding = UDim2.new(0,5,0,10)
+	Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+	Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		Scroll.CanvasSize = UDim2.new(0,0,0,Layout.AbsoluteContentSize.Y+10)
+	نهاية)
+
+	Tabs[Index] = Scroll
+	العودة إلى التمرير
+نهاية
+
+CreateTab(1).Visible = true
+
+دالة محلية TabHasButtons(tab)
+	إذا لم يكن زر التبويب
+		إرجاع خطأ
+	نهاية
+
+	for _, child in ipairs(tab:GetChildren()) do
+		إذا كان العنصر الفرعي عبارة عن زر نصي،
+			أعد القيمة صحيحًا
+		نهاية
+	نهاية
+
+	إرجاع خطأ
+نهاية
+
+NextButton.MouseButton1Click:Connect(function()
+	بداية محلية = علامة التبويب الحالية
+	يكرر
+		CurrentTab += 1
+		إذا كانت قيمة CurrentTab أكبر من 999،
+			CurrentTab = 1
+		نهاية
+		إذا كانت علامة التبويب الحالية موجودة (Tabs[CurrentTab]) وتحتوي على أزرار (TabHasButtons(Tabs[CurrentTab]))
+			إذا كانت علامة التبويب[البداية]
+				Tabs[start].Visible = false
+			نهاية
+			Tabs[CurrentTab].Visible = true
+			يعود
+		نهاية
+	حتى يصبح CurrentTab هو بداية
+نهاية)
+
+PrevButton.MouseButton1Click:Connect(function()
+	بداية محلية = علامة التبويب الحالية
+	يكرر
+		CurrentTab -= 1
+		إذا كانت قيمة CurrentTab أقل من 1،
+			CurrentTab = 999
+		نهاية
+		إذا كانت علامة التبويب الحالية موجودة (Tabs[CurrentTab]) وتحتوي على أزرار (TabHasButtons(Tabs[CurrentTab]))
+			إذا كانت علامة التبويب[البداية]
+				Tabs[start].Visible = false
+			نهاية
+			Tabs[CurrentTab].Visible = true
+			يعود
+		نهاية
+	حتى يصبح CurrentTab هو بداية
+نهاية)
+
+دالة AddButton(config)
+	local TabNumber = tonumber(config.Tab) or 1
+	local TabFrame = CreateTab(TabNumber)
+
+	local Button = Instance.new("TextButton")
+	Button.Parte = TabFrame
+	Button.Size = UDim2.new(0,100,0,35)
+	Button.BackgroundColor3 = Color3.fromRGB(125,102,255)
+	Button.BorderSizePixel = 0
+	Button.Font = Enum.Font.Cartoon
+	Button.Text = config.Name or "Button"
+	Button.TextColor3 = Color3.new(0,0,0)
+	حجم نص الزر = 20
+	Button.TextWrapped = true
+	Button.AutoButtonColor = true
+
+	local TextConstraint = Instance.new("UITextSizeConstraint")
+	TextConstraint.Parent = Button
+	TextConstraint.MaxTextSize = 20
+	TextConstraint.MinTextSize = 10
+
+	local Corner = Instance.new("UICorner")
+	Corner.CornerRadius = UDim.new(0,6)
+	Corner.Part = Button
+
+	إذا كان config.Part لا يساوي nil،
+		local Part = Instance.new("TextLabel")
+		Part.Parent = Button
+		Part.AnchorPoint = Vector2.new(0,0)
+		Part.Position = UDim2.new(0,2,0,2)
+		Part.Size = UDim2.new(0,13,0,13)
+		Part.BackgroundColor3 = Color3.fromRGB(98,78,255)
+		Part.BorderSizePixel = 0
+		Part.Font = Enum.Font.Cartoon
+		Part.Text = tostring(config.Part)
+		Part.TextColor3 = Color3.new(1,1,1)
+		حجم نص الجزء = 9
+		Part.ZIndex = Button.ZIndex + 1
+
+		local PartCorner = Instance.new("UICorner")
+		PartCorner.CornerRadius = UDim.new(0,3)
+		PartCorner.Parent = Part
+	نهاية
+
+	Button.MouseButton1Click:Connect(function()
+		إذا كان config.Callback
+			config.Callback()
+		نهاية
+	نهاية)
+
+	زر الرجوع
+نهاية
+أضف زرًا({
+    الاسم = "طائران"،
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        loadstring("\108\111\97\100\115\116\114\105\110\103\40\103\97\109\101\58\72\116\116\112\71\101\116\40\40\39\104\116\116\112\115\58\47\47\103\105\115\116\46\103\105\116\104\117\98 117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\109\101\111\122\111\110\101\89\84\47\98\102\48\51\55\100\102\102\57\102\48\97\55\48\48\49\55\51\48\52\100\100\100\54\5 5\102\100\99\100\51\55\48\47\114\97\119\47\101\49\52\101\55\52\102\52\50\53\98\48\54\48\100\102\53\50\51\51\52\51\99\102\51\48\98\55\56\55\48\55\52\101\98\51\99\53\100\50\47\97\11 4\99\101\117\115\37\50\53\50\48\120\37\50\53\50\48\102\108\121\37\50\53\50\48\50\37\50\53\50\48\111\98\102\108\117\99\97\116\111\114\39\41\44\116\114\117\101\41\41\40\41\10\10")()
+    نهاية
+})
+
+أضف زرًا({
+    الاسم = "جلا"،
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Invisible%20Gui'))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "آدمون"
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        الإعدادات الافتراضية = {
+            prefix = ';';
+            StayOpen = false;
+            keepIY = صحيح؛
+            logsEnabled = false;
+            jLogsEnabled = false;
+            الأسماء المستعارة = {};
+            binds = {};
+            WayPoints = {};
+            PluginsTable = {};
+        }
+        defaults = game:GetService("HttpService"):JSONEncode(defaultsettings)
+        writefile("IY_FE.iy",defaults)
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+    نهاية
+})
+
+أضف زرًا({
+    الاسم = "عاصرة"،
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/R7KScript/Arabic-speed/refs/heads/main/Arabic.speed.txt"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "الجميع"
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+                local FillColor = Color3.fromRGB(175,25,255)
+        وضع العمق المحلي = "دائمًا في المقدمة"
+        قيمة الشفافية المحلية = 0.5
+        local OutlineColor = Color3.fromRGB(255,255,255)
+        شفافية المخطط المحلي = 0
+        CoreGui المحلي = اللعبة:FindService("CoreGui")
+        local Players = game:FindService("Players")
+        local lp = Players.LocalPlayer
+        الاتصالات المحلية = {}
+        التخزين المحلي = Instance.new("مجلد")
+        Storage.Parent = CoreGui
+        Storage.Name = "Highlight_Storage"
+        دالة محلية Highlight(plr)
+            local Highlight = Instance.new("Highlight")
+            Highlight.Name = plr.Name
+            Highlight.FillColor = FillColor
+            Highlight.DepthMode = DepthMode
+            Highlight.FillTransparency = FillTransparency
+            Highlight.OutlineColor = OutlineColor
+            Highlight.OutlineTransparency = 0
+            Highlight.Parent = Storage
+            local plrchar = plr.Character
+            إذا كان plrchar
+                Highlight.Adornee = plrchar
+            نهاية
+            connections[plr] = plr.CharacterAdded:Connect(function(char)
+                Highlight.Adornee = char
+            نهاية)
+        نهاية
+        Players.PlayerAdded:Connect(Highlight)
+        for i,v in next, Players:GetPlayers() do
+            تمييز (v)
+        نهاية
+        Players.PlayerRemoving:Connect(function(plr)
+            local plrname = plr.Name
+            إذا كان التخزين[plrname]
+                Storage[plrname]:Destroy()
+            نهاية
+            إذا كانت الاتصالات[plr]
+                connections[plr]:Disconnect()
+            نهاية
+        نهاية)
+    نهاية
+})
+أضف زرًا({
+    الاسم = "مشي فالهواء"،
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Float'))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "هيتبوسكس"
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+                _G.HeadSize = 30 _G.Disabled = true  
+        game:GetService('RunService').RenderStepped:connect(function()
+            إذا كان _G.Disabled
+                for i,v in next, game:GetService('Players'):GetPlayers() do
+                    إذا كان v.Name لا يساوي game:GetService('Players').LocalPlayer.Name،
+                        pcall(function()
+                            v.Character.HumanoidRootPart.Size = Vector3.new(_G.HeadSize,_G.HeadSize,_G.HeadSize)
+                            v.Character.HumanoidRootPart.Transparency = 0.7
+                            v.Character.HumanoidRootPart.BrickColor = BrickColor.new("أسود داكن جدًا")
+                            v.Character.HumanoidRootPart.Material = "Neon"
+                            v.Character.HumanoidRootPart.CanCollide = false
+                        نهاية)
+                    نهاية
+                نهاية
+            نهاية
+        نهاية)
+    نهاية
+})
+أضف زرًا({
+    الاسم = "العاده سري"،
+    Tab = 1,
+    الجزء = 18،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://pastefy.app/YZoglOyJ/raw"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "الآخرين"،
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Sector9922/SECTOR-SHIFT-LOCK/main/SECTOR%20SHIFT%20LOCK"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "جدة رجل"
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet('https://pastebin.com/raw/wyvdb7gr'))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "التواصلات"،
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://yarhm.mhi.im/scr?channel=afem"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ساندات"
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "تطير الناس"،
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/bleuboy29/FlingGui/refs/heads/main/FlingGuiLua"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ايام الفلبين"،
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        Loadstring(game:HttpGet("https://raw.githubusercontent.com/HomeMadeScripts/Camlock-aimlock/main/obf_Wxr6QgzF76G1y2Ch77KN4Zt5Nz0A6GIl61gitv3mRR2t3V103al5d0g26s4KY04r.lua.txt"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "زياده الافريم"،
+    Tab = 1,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/CasperFlyModz/discord.gg-rips/main/FPSBooster.lua"))()
+    نهاية
+})
+
+أضف زرًا({
+    الاسم = "مواصلة"،
+    Tab = 2,
+    دالة رد الاتصال = دالة()
+        Loadstring(game:HttpGet("https://pastebin.com/raw/nNSuskqK",true))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "كيبورد"
+    Tab = 2,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://scriptblox.com/raw/Free-Owner-Admin-Abuse-Keyboard-Script-7798"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "القصة"،
+    Tab = 2,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Korblox-R6-28939"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "استو كليكر"
+    Tab = 2,
+    دالة رد الاتصال = دالة()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/as6cd0/SP_Hub/refs/heads/main/AutoClicker"))()   
+    نهاية
+})
+أضف زرًا({
+    الاسم = "التحكم بالجاذبية"،
+    Tab = 2,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/MrLamon/MLamon-Hub/refs/heads/main/Gravity-MLamon-Hub.txt"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = " التنقل التنقل",
+    Tab = 2,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/Ndora1/Ndora1/main/Nokies'))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "أغاني"
+    Tab = 2,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/harisprofanny/d/main/Music%20Gui.txt"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "العودة بالزمن"،
+    Tab = 2,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/0Ben1/fe./main/L"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ازاله الاق"
+    Tab = 2,
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/MrLamon/MLamon-Hub/refs/heads/main/Protected_4747902775072511.lua.txt"))()
+    نهاية
+})
+
+أضف زرًا({
+    الاسم = "ماب."
+    Tab = 2,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/as6cd0/SP_Hub/refs/heads/main/Brookhaven"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ماب."
+    Tab = 2,
+    الجزء = 2،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Laelmano24/Rael-Hub/main/main.txt"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ماب."
+    Tab = 2,
+    الجزء = 3،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/kigredns/SanderXV4.2.2/refs/heads/main/New.lua'))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ماب."
+    Tab = 2,
+    الجزء = 4،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-GhostHub-16534"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ماب."
+    Tab = 2,
+    الجزء = 5،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/kigredns/testUIDK/refs/heads/main/panel.lua"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ماب."
+    Tab = 2,
+    الجزء = 6،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/KitUserss/DarkHub/refs/heads/main/carregamento"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "بوجهة فروت"
+    Tab = 3,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Omgshit/Scripts/main/MainLoader.lua"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "بوجهة فروت"
+    Tab = 3,
+    الجزء = 2،
+    دالة رد الاتصال = دالة()
+        الإعدادات المحلية = {
+  انضم إلى الفريق = "قراصنة"؛ -- قراصنة/مشاة بحرية
+  المترجم = صحيح؛ -- صحيح/خطأ
+}
+
+getgenv().BETA_VERSION = true
+loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)
+    نهاية
+})
+
+أضف زرًا({
+    الاسم = "بوجهة فروت"
+    Tab = 3,
+    الجزء = 3،
+    دالة رد الاتصال = دالة()
+        getgenv().FixCrash = false -- قم بتشغيله للخوادم المتنقلة، لتحسين الأداء مع التصويب الصامت على الوحوش واللاعبين
+getgenv().FixCrash2 = false -- قم بتفعيله للخوادم المتنقلة، لتحسين الأداء ولكن سيؤدي ذلك إلى إزالة مُغيّر السرعة
+loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/3b2169cf53bc6104dabe8e19562e5cc2.lua"))()
+    نهاية
+})
+
+أضف زرًا({
+    الاسم = "بوجهة فروت"
+    Tab = 3,
+    الجزء = 4،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet"https://raw.githubusercontent.com/Basicallyy/Basicallyy/main/MinGamingV4.lua")()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "بوجهة فروت"
+    Tab = 3,
+    الجزء = 5،
+    دالة رد الاتصال = دالة()
+        _G.HohoVersion = "v4"
+loadstring(game:HttpGet("https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "بوجهة فروت"
+    Tab = 3,
+    الجزء = 6،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/main/AnDepZaiHubBeta.lua"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "بوجهة فروت"
+    Tab = 3,
+    الجزء = 7،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/DatThg/refs/heads/main/DatThgV2"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "بوجهة فروت"
+    Tab = 3,
+    الجزء = 8،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/ZoiIntra/Dec/main/mystichub'))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "بوجهة فروت"
+    Tab = 3,
+    الجزء = 9،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet"https://raw.githubusercontent.com/UserDevEthical/Loadstring/main/CokkaHub.lua")()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ام اميو"
+    Tab = 3,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/spawnerscript/WymsHub/refs/heads/main/MM2.lua"))()  
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ام اميو"
+    Tab = 3,
+    الجزء = 2،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/as6cd0/SP_Hub/refs/heads/main/Loader"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ام اميو"
+    Tab = 3,
+    الجزء = 3،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Lx8Lx/TgXmm2/refs/heads/main/TgXmm2LoL.txt"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "جو اجادرن2"،
+    Tab = 3,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/yhmani76-ux/AZC/refs/heads/main/Azc-gag2.lua"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "جو اجادرن2"،
+    Tab = 3,
+    الجزء = 2،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/as6cd0/SP_Hub/refs/heads/main/Loader"))()
+    نهاية
+})
+
+أضف زرًا({
+    الاسم = "جو اجادرن2"،
+    Tab = 3,
+    الجزء = 3،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Grow-a-Garden-2-GaG2-Dupe-Brand-New-FREE-OP-241162"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "ماب القنبلة"،
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Timebomb-Duels-Alpha-BESTEST-OP-SCRIPT-78934"))()
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
+أضف زرًا({
+    الاسم = "قربا"
+    Tab = 4,
+    الجزء = 1،
+    دالة رد الاتصال = دالة()
+        
+    نهاية
+})
