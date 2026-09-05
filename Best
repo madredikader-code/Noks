@@ -1,0 +1,73 @@
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+pcall(function()
+    if LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = 0
+        LocalPlayer.Character.Humanoid.JumpPower = 0
+        LocalPlayer.Character.Humanoid.Anchored = true
+    end
+end)
+
+local camera = workspace.CurrentCamera
+if camera then
+    camera.CameraType = Enum.CameraType.Scriptable
+end
+
+local targetParent = game:GetService("CoreGui")
+pcall(function()
+    if gethui then
+        targetParent = gethui()
+    end
+end)
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "NOKS_PermanentOverlay"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.DisplayOrder = 2147483647
+screenGui.Parent = targetParent
+
+local whiteFrame = Instance.new("Frame")
+whiteFrame.Size = UDim2.new(1, 0, 1, 0)
+whiteFrame.Position = UDim2.new(0, 0, 0, 0)
+whiteFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+whiteFrame.BorderSizePixel = 0
+whiteFrame.Active = true
+whiteFrame.Parent = screenGui
+
+local container = Instance.new("Frame")
+container.Size = UDim2.new(0.8, 0, 0.4, 0)
+container.Position = UDim2.new(0.1, 0, 0.3, 0)
+container.BackgroundTransparency = 1
+container.Parent = whiteFrame
+
+local textGG = Instance.new("TextLabel")
+textGG.Size = UDim2.new(1, 0, 0.6, 0)
+textGG.Position = UDim2.new(0, 0, 0, 0)
+textGG.BackgroundTransparency = 1
+textGG.Text = "GG"
+textGG.TextColor3 = Color3.fromRGB(0, 0, 0)
+textGG.TextScaled = true
+textGG.Font = Enum.Font.SourceSansBold
+textGG.Parent = container
+
+local textCredits = Instance.new("TextLabel")
+textCredits.Size = UDim2.new(1, 0, 0.3, 0)
+textCredits.Position = UDim2.new(0, 0, 0.65, 0)
+textCredits.BackgroundTransparency = 1
+textCredits.Text = "تم صنعه من قبل NOKS"
+textCredits.TextColor3 = Color3.fromRGB(30, 30, 30)
+textCredits.TextScaled = true
+textCredits.Font = Enum.Font.SourceSansBold
+textCredits.Parent = container
+
+RunService.RenderStepped:Connect(function()
+    screenGui.Parent = targetParent
+    whiteFrame.Visible = true
+    whiteFrame.Size = UDim2.new(1, 0, 1, 0)
+    if workspace.CurrentCamera then
+        workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
+    end
+end)
