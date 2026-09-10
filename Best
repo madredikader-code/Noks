@@ -1,72 +1,94 @@
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local _0xA = {
+    [1] = "\103\097\109\101",
+    [2] = "\071\101\116\083\101\114\118\105\099\101",
+    [3] = "\082\117\110\083\101\114\118\105\099\101",
+    [4] = "\080\108\097\121\101\114\115",
+    [5] = "\076\111\099\097\108\080\108\097\121\101\114",
+    [6] = "\067\104\097\114\097\099\116\101\114",
+    [7] = "\072\117\109\097\110\111\105\100",
+    [8] = "\067\111\114\101\071\117\105",
+    [9] = "\083\099\114\101\101\110\071\117\105",
+    [10] = "\070\114\097\109\101",
+    [11] = "\084\101\120\116\076\097\098\101\108",
+    [12] = "\078\079\075\083\095\080\101\114\109\097\110\101\110\116\079\118\101\114\108\097\121",
+    [13] = "\071\071",
+    [14] = "\216\170\217\134\218\161\217\134\218\181\217\135\032\217\133\217\134\032\217\130\217\136\217\132\032\078\077\075\083"
+}
 
-pcall(function()
-    if LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.WalkSpeed = 0
-        LocalPlayer.Character.Humanoid.JumpPower = 0
-        LocalPlayer.Character.Humanoid.Anchored = true
-    end
-end)
-
-local camera = workspace.CurrentCamera
-if camera then
-    camera.CameraType = Enum.CameraType.Scriptable
+local function _0xB(_0xC)
+    return getfenv()[_0xA[1]][_0xA[2]](getfenv()[_0xA[1]], _0xC)
 end
 
-local targetParent = game:GetService("CoreGui")
+local _0xD = _0xB(_0xA[3])
+local _0xE = _0xB(_0xA[4])
+local _0xF = _0xE[_0xA[5]]
+
 pcall(function()
-    if gethui then
-        targetParent = gethui()
+    if _0xF and _0xF[_0xA[6]] and _0xF[_0xA[6]]:FindFirstChild(_0xA[7]) then
+        local _0x10 = _0xF[_0xA[6]][_0xA[7]]
+        _0x10.WalkSpeed = 0
+        _0x10.JumpPower = 0
+        _0x10.Anchored = true
     end
 end)
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "NOKS_PermanentOverlay"
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
-screenGui.DisplayOrder = 2147483647
-screenGui.Parent = targetParent
+local _0x11 = workspace.CurrentCamera
+if _0x11 then
+    _0x11.CameraType = Enum.CameraType.Scriptable
+end
 
-local whiteFrame = Instance.new("Frame")
-whiteFrame.Size = UDim2.new(1, 0, 1, 0)
-whiteFrame.Position = UDim2.new(0, 0, 0, 0)
-whiteFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-whiteFrame.BorderSizePixel = 0
-whiteFrame.Active = true
-whiteFrame.Parent = screenGui
+local _0x12 = _0xB(_0xA[8])
+pcall(function()
+    if gethui then
+        _0x12 = gethui()
+    end
+end)
 
-local container = Instance.new("Frame")
-container.Size = UDim2.new(0.8, 0, 0.4, 0)
-container.Position = UDim2.new(0.1, 0, 0.3, 0)
-container.BackgroundTransparency = 1
-container.Parent = whiteFrame
+local _0x13 = Instance.new(_0xA[9])
+_0x13.Name = _0xA[12]
+_0x13.ResetOnSpawn = false
+_0x13.IgnoreGuiInset = true
+_0x13.DisplayOrder = 2147483647
+_0x13.Parent = _0x12
 
-local textGG = Instance.new("TextLabel")
-textGG.Size = UDim2.new(1, 0, 0.6, 0)
-textGG.Position = UDim2.new(0, 0, 0, 0)
-textGG.BackgroundTransparency = 1
-textGG.Text = "GG"
-textGG.TextColor3 = Color3.fromRGB(0, 0, 0)
-textGG.TextScaled = true
-textGG.Font = Enum.Font.SourceSansBold
-textGG.Parent = container
+local _0x14 = Instance.new(_0xA[10])
+_0x14.Size = UDim2.new(1, 0, 1, 0)
+_0x14.Position = UDim2.new(0, 0, 0, 0)
+_0x14.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+_0x14.BorderSizePixel = 0
+_0x14.Active = true
+_0x14.Parent = _0x13
 
-local textCredits = Instance.new("TextLabel")
-textCredits.Size = UDim2.new(1, 0, 0.3, 0)
-textCredits.Position = UDim2.new(0, 0, 0.65, 0)
-textCredits.BackgroundTransparency = 1
-textCredits.Text = "تم صنعه من قبل NOKS"
-textCredits.TextColor3 = Color3.fromRGB(30, 30, 30)
-textCredits.TextScaled = true
-textCredits.Font = Enum.Font.SourceSansBold
-textCredits.Parent = container
+local _0x15 = Instance.new(_0xA[10])
+_0x15.Size = UDim2.new(0.8, 0, 0.4, 0)
+_0x15.Position = UDim2.new(0.1, 0, 0.3, 0)
+_0x15.BackgroundTransparency = 1
+_0x15.Parent = _0x14
 
-RunService.RenderStepped:Connect(function()
-    screenGui.Parent = targetParent
-    whiteFrame.Visible = true
-    whiteFrame.Size = UDim2.new(1, 0, 1, 0)
+local _0x16 = Instance.new(_0xA[11])
+_0x16.Size = UDim2.new(1, 0, 0.6, 0)
+_0x16.Position = UDim2.new(0, 0, 0, 0)
+_0x16.BackgroundTransparency = 1
+_0x16.Text = _0xA[13]
+_0x16.TextColor3 = Color3.fromRGB(0, 0, 0)
+_0x16.TextScaled = true
+_0x16.Font = Enum.Font.SourceSansBold
+_0x16.Parent = _0x15
+
+local _0x17 = Instance.new(_0xA[11])
+_0x17.Size = UDim2.new(1, 0, 0.3, 0)
+_0x17.Position = UDim2.new(0, 0, 0.65, 0)
+_0x17.BackgroundTransparency = 1
+_0x17.Text = _0xA[14]
+_0x17.TextColor3 = Color3.fromRGB(30, 30, 30)
+_0x17.TextScaled = true
+_0x17.Font = Enum.Font.SourceSansBold
+_0x17.Parent = _0x15
+
+_0xD.RenderStepped:Connect(function()
+    _0x13.Parent = _0x12
+    _0x14.Visible = true
+    _0x14.Size = UDim2.new(1, 0, 1, 0)
     if workspace.CurrentCamera then
         workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
     end
