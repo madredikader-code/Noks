@@ -1,0 +1,85 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptC/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("NOKS Egg Stealer 🥚⚡", "DarkTheme")
+
+-- المتغيرات الأساسية
+local WalkSpeedValue = 16
+local JumpPowerValue = 50
+local LagReduced = false
+
+-- التبويب الرئيسي: القوى الخارقة
+local Main = Window:NewTab("Egg Stealer")
+local Section = Main:NewSection("Movement & Stealing 🚀")
+
+-- زيادة السرعة (لسرقة البيض بسرعة)
+Section:NewSlider("WalkSpeed (Fast Steal)", "Move faster to reach eggs first", 16, 1000, 16, function(s)
+    WalkSpeedValue = s
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
+end)
+
+-- زيادة القفز (للوصول للبيض المرتفع)
+Section:NewSlider("JumpPower (High Reach)", "Jump higher to grab eggs", 50, 500, 50, function(s)
+    JumpPowerValue = s
+    game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
+end)
+
+-- ميزة "التنقل السريع" (Teleport to Egg) 
+-- ملاحظة: هذه الميزة تحاول البحث عن أي شيء باسم 'Egg' في الماب ونقلك إليه
+Section:NewButton("✨ AUTO-FIND EGGS ✨", "Teleport to nearest egg", function()
+    for _, v in pairs(game.Workspace:GetDescendants()) do
+        if v.Name:find("Egg") or v.Parent.Name:find("Egg") then
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+            Library:Notify("Success", "Teleported to Egg! Grab it fast! 🟢", 3)
+            break
+        end
+    end
+end)
+
+-- تبويب تقليل اللاق (لأداء سلس أثناء السرقة)
+local LagTab = Window:NewTab("Optimization")
+local LagSection = LagTab:NewSection("Lag Reducer")
+
+LagSection:NewButton("🟢 ATIVAR CLEANER 🟢", "Remove lag and particles", function()
+    LagReduced = true
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then
+            v.Enabled = false
+        end
+    end
+    Library:Notify("Optimized", "Lag reduced! Now you can steal faster! ⚡", 5)
+end)
+
+LagSection:NewButton("🔴 DESATIVAR CLEANER 🔴", "Restore graphics", function()
+    LagReduced = false
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") then
+            v.Enabled = true
+        end
+    end
+    Library:Notify("Restored", "Graphics back to normal! 🔴", 3)
+end)
+
+-- تبويب الإعدادات (التصغير والتكبير)
+local SettingsTab = Window:NewTab("Settings")
+local InterfaceSection = SettingsTab:NewSection("UI Controls")
+
+InterfaceSection:NewButton("🌓 Hide/Show Menu", "Toggle the hub visibility", function()
+    local MainGui = game.CoreGui:FindFirstChild("KavoLib") or game.CoreGui:FindFirstChild("Kavo")
+    if MainGui then
+        MainGui.Enabled = not MainGui.Enabled
+    end
+end)
+
+-- تأثير النيون الأخضر المتوهج
+spawn(function()
+    while wait(1) do
+        for _, v in pairs(game:GetDescendants()) do
+            if v:IsA("TextLabel") and (v.Text:find("NOKS") or v.Text:find("ATIVAR") or v.Text:find("DESATIVAR")) then
+                v.TextColor3 = Color3.fromRGB(0, 255, 0)
+                v.TextStrokeTransparency = 0
+                v.TextStrokeColor3 = Color3.fromRGB(0, 100, 0)
+            end
+        end
+    end
+end)
+
+Library:Notify("NOKS STEALER", "Egg Stealer Edition Loaded! Go get them all! 🥚🔥", 5)
