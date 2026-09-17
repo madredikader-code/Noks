@@ -1,0 +1,596 @@
+--[[══════════════════════════════════════════════════════════════
+    ███╗   ██╗  ██████╗  ██╗  ██╗  ███████╗
+    ████╗  ██║ ██╔═══██╗ ██║ ██╔╝  ██╔════╝
+    ██╔██╗ ██║ ██║   ██║ █████╔╝   ███████╗
+    ██║╚██╗██║ ██║   ██║ ██╔═██╗   ╚════██║
+    ██║ ╚████║ ╚██████╔╝ ██║  ██╗  ███████║
+    ╚═╝  ╚═══╝  ╚═════╝  ╚═╝  ╚═╝  ╚══════╝
+    ─────────────────────────────────────────────
+    NOKS — LEGENDARY SCRIPT
+    Game     : Steal An Egg (Roblox)
+    Executor : Delta
+    Version  : 1.0.0
+    ─────────────────────────────────────────────
+    ▶ HOW TO USE
+      1. Open Delta executor
+      2. Join "Steal An Egg" in Roblox
+      3. Paste this script and press Execute
+      4. Press RightShift to open/close the menu
+    ─────────────────────────────────────────────
+    ⚠ NOTE: Game internals change with updates.
+      If a feature stops working, edit the
+      "CONFIG" section below (object names).
+══════════════════════════════════════════════════════════════]]
+
+--══════════════════════════════════════════════════════════════
+-- 1) SERVICES
+--══════════════════════════════════════════════════════════════
+local Players          = game:GetService("Players")
+local RunService       = game:GetService("RunService")
+local TweenService     = game:GetService("TweenService")
+local UserInput        = game:GetService("UserInputService")
+local CoreGui          = game:GetService("CoreGui")
+local Lighting         = game:GetService("Lighting")
+
+local LP               = Players.LocalPlayer
+local Character        = LP.Character or LP.CharacterAdded:Wait()
+local Humanoid         = Character:WaitForChild("Humanoid")
+local Root             = Character:WaitForChild("HumanoidRootPart")
+
+--══════════════════════════════════════════════════════════════
+-- 2) CONFIG — ADAPT ME
+--    If a feature stops working after a game update,
+--    adjust these names to match the current game.
+--══════════════════════════════════════════════════════════════
+local CONFIG = {
+    -- Egg object names (searched in Workspace)
+    EggNames = {"Egg", "Eggs", "EggSpawn", "StealEgg", "GoldenEgg", "MysteryEgg"},
+
+    -- Folder that holds the eggs (nil = search whole Workspace)
+    EggFolder = nil,   -- e.g. workspace:WaitForChild("Eggs")
+
+    -- Guard / monster model names (for ESP)
+    GuardNames = {"Chicken", "Swan", "Scorpion", "Tiger", "Yeti", "Cerberus",
+                  "Moby", "TRex", "T-Rex", "CosmicSkeleton", "OniTiger",
+                  "GorillaKing", "Guard"},
+
+    -- Treadmill / trainer object names (for Auto Train)
+    TreadmillNames = {"Treadmill", "Trainer", "TrainingMachine", "SpeedTrainer"},
+
+    -- Rebirth button names (for Auto Rebirth)
+    RebirthNames = {"Rebirth", "RebirthButton", "RebirthPad"},
+
+    -- Base position to return after stealing an egg
+    -- (fill in once you stand on your base, or leave nil)
+    BasePosition = nil,  -- e.g. Vector3.new(0, 5, 0)
+
+    -- Biome positions: name + CFrame
+    -- (fill the CFrame after visiting each area once)
+    Biomes = {
+        {"Forest",          CFrame.new(0, 0, 0)},
+        {"Lake",            CFrame.new(0, 0, 0)},
+        {"Desert",          CFrame.new(0, 0, 0)},
+        {"Jungle",          CFrame.new(0, 0, 0)},
+        {"Snow",            CFrame.new(0, 0, 0)},
+        {"Volcano",         CFrame.new(0, 0, 0)},
+        {"Abyss Ocean",     CFrame.new(0, 0, 0)},
+        {"Prehistoric",     CFrame.new(0, 0, 0)},
+        {"Cosmic",          CFrame.new(0, 0, 0)},
+        {"Cherry Blossom",  CFrame.new(0, 0, 0)},
+        {"Titan Temple",    CFrame.new(0, 0, 0)},
+        {"Angels & Demons", CFrame.new(0, 0, 0)},
+    },
+
+    -- Toggles (start OFF)
+    AutoFarm     = false,
+    AutoCollect  = false,
+    AutoTrain    = false,
+    AutoRebirth  = false,
+    ESP          = false,
+    Noclip       = false,
+    InfiniteJump = false,
+
+    -- Player values
+    WalkSpeed = 16,
+    JumpPower = 50,
+
+    -- GUI toggle key
+    ToggleKey = Enum.KeyCode.RightShift,
+}
+
+--══════════════════════════════════════════════════════════════
+-- 3) MINI UI LIBRARY (dark neon theme)
+--══════════════════════════════════════════════════════════════
+local UI = {}
+UI.Objects = {}
+
+function UI.NewWindow(title)
+    local screen = Instance.new("ScreenGui")
+    screen.Name = "NOKS_UI"
+    screen.ResetOnSpawn = false
+    screen.Parent = CoreGui
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 320, 0, 420)
+    frame.Position = UDim2.new(0.5, -160, 0.3, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Parent = screen
+
+    -- drag
+    local dragging, dragStart, startPos
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+        end
+    end)
+    UserInput.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                       startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    UserInput.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    -- header
+    local header = Instance.new("TextLabel")
+    header.Size = UDim2.new(1, 0, 0, 36)
+    header.BackgroundColor3 = Color3.fromRGB(24, 24, 40)
+    header.BorderSizePixel = 0
+    header.Text = "  " .. title
+    header.Font = Enum.Font.GothamBold
+    header.TextSize = 16
+    header.TextColor3 = Color3.fromRGB(80, 255, 200)
+    header.TextXAlignment = Enum.TextXAlignment.Left
+    header.Parent = frame
+
+    local close = Instance.new("TextButton")
+    close.Size = UDim2.new(0, 28, 0, 28)
+    close.Position = UDim2.new(1, -30, 0, 4)
+    close.BackgroundColor3 = Color3.fromRGB(60, 20, 30)
+    close.BorderSizePixel = 0
+    close.Text = "✕"
+    close.Font = Enum.Font.GothamBold
+    close.TextSize = 14
+    close.TextColor3 = Color3.fromRGB(255, 120, 120)
+    close.Parent = frame
+    close.MouseButton1Click:Connect(function()
+        screen:Destroy()
+    end)
+
+    -- tab bar
+    local tabs = Instance.new("Frame")
+    tabs.Size = UDim2.new(1, 0, 0, 32)
+    tabs.Position = UDim2.new(0, 0, 0, 36)
+    tabs.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+    tabs.BorderSizePixel = 0
+    tabs.Parent = frame
+
+    -- content
+    local content = Instance.new("ScrollingFrame")
+    content.Size = UDim2.new(1, 0, 1, -68)
+    content.Position = UDim2.new(0, 0, 0, 68)
+    content.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+    content.BorderSizePixel = 0
+    content.CanvasSize = UDim2.new(0, 0, 0, 0)
+    content.ScrollBarThickness = 4
+    content.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    content.Parent = frame
+
+    local api = { Frame = frame, Content = content }
+    api.Tabs = {}
+
+    function api.AddTab(name)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0, 106, 0, 30)
+        btn.Position = UDim2.new(0, 106 * (api.TabsLen or 0), 0, 1)
+        btn.BackgroundColor3 = Color3.fromRGB(24, 24, 40)
+        btn.BorderSizePixel = 0
+        btn.Text = name
+        btn.Font = Enum.Font.Gotham
+        btn.TextSize = 13
+        btn.TextColor3 = Color3.fromRGB(200, 200, 210)
+        btn.Parent = tabs
+        api.TabsLen = (api.TabsLen or 0) + 1
+
+        local page = Instance.new("Frame")
+        page.Size = UDim2.new(1, 0, 1, 0)
+        page.BackgroundTransparency = 1
+        page.Visible = false
+        page.Parent = content
+
+        local y = 0
+        local pageApi = {}
+        pageApi.Page = page
+
+        function pageApi.AddToggle(text, default)
+            y = y + 34
+            local row = Instance.new("Frame")
+            row.Size = UDim2.new(1, -16, 0, 30)
+            row.Position = UDim2.new(0, 8, 0, y)
+            row.BackgroundColor3 = Color3.fromRGB(20, 20, 32)
+            row.BorderSizePixel = 0
+            row.Parent = page
+
+            local lbl = Instance.new("TextLabel")
+            lbl.Size = UDim2.new(1, -44, 1, 0)
+            lbl.BackgroundTransparency = 1
+            lbl.Text = text
+            lbl.Font = Enum.Font.Gotham
+            lbl.TextSize = 13
+            lbl.TextColor3 = Color3.fromRGB(220, 220, 230)
+            lbl.TextXAlignment = Enum.TextXAlignment.Left
+            lbl.Parent = row
+
+            local tog = Instance.new("TextButton")
+            tog.Size = UDim2.new(0, 34, 0, 20)
+            tog.Position = UDim2.new(1, -40, 0.5, -10)
+            tog.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+            tog.BorderSizePixel = 0
+            tog.Text = "OFF"
+            tog.Font = Enum.Font.GothamBold
+            tog.TextSize = 10
+            tog.TextColor3 = Color3.fromRGB(180, 180, 190)
+            tog.Parent = row
+
+            local state = default or false
+            local function refresh()
+                tog.Text = state and "ON" or "OFF"
+                tog.BackgroundColor3 = state and Color3.fromRGB(30, 160, 110)
+                                             or Color3.fromRGB(60, 60, 70)
+                tog.TextColor3 = state and Color3.fromRGB(255, 255, 255)
+                                       or Color3.fromRGB(180, 180, 190)
+            end
+            refresh()
+            tog.MouseButton1Click:Connect(function()
+                state = not state
+                refresh()
+                if onChange then onChange(state) end
+            end)
+            return { Get = function() return state end,
+                     Set = function(v) state = v refresh() end }
+        end
+
+        function pageApi.AddSlider(text, min, max, default)
+            y = y + 44
+            local row = Instance.new("Frame")
+            row.Size = UDim2.new(1, -16, 0, 40)
+            row.Position = UDim2.new(0, 8, 0, y)
+            row.BackgroundColor3 = Color3.fromRGB(20, 20, 32)
+            row.BorderSizePixel = 0
+            row.Parent = page
+
+            local lbl = Instance.new("TextLabel")
+            lbl.Size = UDim2.new(1, 0, 0, 16)
+            lbl.BackgroundTransparency = 1
+            lbl.Text = text .. " : " .. tostring(default)
+            lbl.Font = Enum.Font.Gotham
+            lbl.TextSize = 13
+            lbl.TextColor3 = Color3.fromRGB(220, 220, 230)
+            lbl.TextXAlignment = Enum.TextXAlignment.Left
+            lbl.Parent = row
+
+            local bar = Instance.new("Frame")
+            bar.Size = UDim2.new(1, -16, 0, 4)
+            bar.Position = UDim2.new(0, 8, 0, 24)
+            bar.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+            bar.BorderSizePixel = 0
+            bar.Parent = row
+
+            local fill = Instance.new("Frame")
+            fill.Size = UDim2.new(0, 0, 1, 0)
+            fill.BackgroundColor3 = Color3.fromRGB(80, 255, 200)
+            fill.BorderSizePixel = 0
+            fill.Parent = bar
+
+            local value = default
+            local dragging2 = false
+            local function setFromMouse()
+                local rel = UserInput:GetMouseLocation().X - bar.AbsolutePosition.X
+                local frac = math.clamp(rel / bar.AbsoluteSize.X, 0, 1)
+                value = math.floor(min + (max - min) * frac + 0.5)
+                fill.Size = UDim2.new(frac, 0, 1, 0)
+                lbl.Text = text .. " : " .. tostring(value)
+            end
+            bar.InputBegan:Connect(function(i)
+                if i.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging2 = true
+                    setFromMouse()
+                end
+            end)
+            UserInput.InputChanged:Connect(function(i)
+                if dragging2 and i.UserInputType == Enum.UserInputType.MouseMovement then
+                    setFromMouse()
+                end
+            end)
+            UserInput.InputEnded:Connect(function(i)
+                if i.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging2 = false
+                end
+            end)
+            return { Get = function() return value end,
+                     Set = function(v) value = v lbl.Text = text .. " : " .. tostring(v) end }
+        end
+
+        function pageApi.AddButton(text, cb)
+            y = y + 36
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1, -16, 0, 32)
+            btn.Position = UDim2.new(0, 8, 0, y)
+            btn.BackgroundColor3 = Color3.fromRGB(30, 30, 48)
+            btn.BorderSizePixel = 0
+            btn.Text = text
+            btn.Font = Enum.Font.GothamBold
+            btn.TextSize = 13
+            btn.TextColor3 = Color3.fromRGB(120, 255, 220)
+            btn.Parent = page
+            btn.MouseButton1Click:Connect(function()
+                if cb then cb() end
+            end)
+            return btn
+        end
+
+        function pageApi.AddDropdown(text, options, onSelect)
+            y = y + 36
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1, -16, 0, 32)
+            btn.Position = UDim2.new(0, 8, 0, y)
+            btn.BackgroundColor3 = Color3.fromRGB(30, 30, 48)
+            btn.BorderSizePixel = 0
+            btn.Text = text .. " : " .. (options[1] or "?")
+            btn.Font = Enum.Font.Gotham
+            btn.TextSize = 12
+            btn.TextColor3 = Color3.fromRGB(220, 220, 230)
+            btn.Parent = page
+            local idx = 1
+            btn.MouseButton1Click:Connect(function()
+                idx = idx % #options + 1
+                btn.Text = text .. " : " .. options[idx]
+                if onSelect then onSelect(options[idx]) end
+            end)
+            return { Get = function() return options[idx] end }
+        end
+
+        btn.MouseButton1Click:Connect(function()
+            for _, other in ipairs(api.Tabs) do
+                other.Page.Visible = false
+                other.Btn.BackgroundColor3 = Color3.fromRGB(24, 24, 40)
+            end
+            page.Visible = true
+            btn.BackgroundColor3 = Color3.fromRGB(40, 40, 70)
+        end)
+
+        table.insert(api.Tabs, { Page = page, Btn = btn })
+        return pageApi
+    end
+
+    -- show first tab
+    task.defer(function()
+        if api.Tabs[1] then
+            api.Tabs[1].Page.Visible = true
+            api.Tabs[1].Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 70)
+        end
+    end)
+
+    return api
+end
+
+--══════════════════════════════════════════════════════════════
+-- 4) HELPERS
+--══════════════════════════════════════════════════════════════
+local function GetCharacter()
+    return LP.Character or LP.CharacterAdded:Wait()
+end
+
+local function FindObjects(names)
+    local found = {}
+    for _, name in ipairs(names) do
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj.Name == name and obj:IsA("BasePart") then
+                table.insert(found, obj)
+            end
+        end
+    end
+    return found
+end
+
+local function TeleportTo(cframe)
+    local char = GetCharacter()
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CFrame = cframe
+    end
+end
+
+local function FireNearbyPrompts(radius)
+    local char = GetCharacter()
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    for _, prompt in ipairs(workspace:GetDescendants()) do
+        if prompt:IsA("ProximityPrompt") then
+            local part = prompt.Parent
+            if part and part:IsA("BasePart") then
+                if (part.Position - root.Position).Magnitude <= (radius or 12) then
+                    prompt:InputHoldBegin()
+                end
+            end
+        end
+    end
+end
+
+--══════════════════════════════════════════════════════════════
+-- 5) FEATURES
+--══════════════════════════════════════════════════════════════
+local Features = {}
+
+-- WalkSpeed / JumpPower loop
+RunService.Heartbeat:Connect(function()
+    local char = GetCharacter()
+    local hum = char and char:FindFirstChild("Humanoid")
+    if hum then
+        hum.WalkSpeed = CONFIG.WalkSpeed
+        hum.JumpPower = CONFIG.JumpPower
+    end
+end)
+
+-- Noclip
+RunService.Stepped:Connect(function()
+    if not CONFIG.Noclip then return end
+    local char = GetCharacter()
+    for _, part in ipairs(char:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
+    end
+end)
+
+-- Infinite Jump
+UserInput.JumpRequest:Connect(function()
+    if not CONFIG.InfiniteJump then return end
+    local char = GetCharacter()
+    local hum = char and char:FindFirstChild("Humanoid")
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if hum and root then
+        hum:ChangeState(Enum.HumanoidStateType.Jumping)
+        root.Velocity = Vector3.new(root.Velocity.X, 60, root.Velocity.Z)
+    end
+end)
+
+-- ESP (Highlight eggs + guards)
+local Highlights = {}
+local function ClearESP()
+    for _, h in ipairs(Highlights) do
+        if h then pcall(function() h:Destroy() end) end
+    end
+    Highlights = {}
+end
+
+RunService.Heartbeat:Connect(function()
+    if not CONFIG.ESP then
+        if #Highlights > 0 then ClearESP() end
+        return
+    end
+    -- eggs
+    for _, egg in ipairs(FindObjects(CONFIG.EggNames)) do
+        if not egg:FindFirstChild("NOKS_HL") then
+            local hl = Instance.new("Highlight")
+            hl.Name = "NOKS_HL"
+            hl.FillColor = Color3.fromRGB(255, 200, 40)
+            hl.FillTransparency = 0.4
+            hl.OutlineColor = Color3.fromRGB(255, 120, 0)
+            hl.Parent = egg
+            table.insert(Highlights, hl)
+        end
+    end
+    -- guards
+    for _, guard in ipairs(FindObjects(CONFIG.GuardNames)) do
+        if not guard:FindFirstChild("NOKS_HL_G") then
+            local hl = Instance.new("Highlight")
+            hl.Name = "NOKS_HL_G"
+            hl.FillColor = Color3.fromRGB(255, 60, 60)
+            hl.FillTransparency = 0.45
+            hl.OutlineColor = Color3.fromRGB(200, 0, 0)
+            hl.Parent = guard
+            table.insert(Highlights, hl)
+        end
+    end
+end)
+
+-- Auto Farm: find nearest egg, go steal it, come back to base
+task.spawn(function()
+    while true do
+        task.wait(0.3)
+        if not CONFIG.AutoFarm then
+            task.wait(0.5)
+        else
+            local char = GetCharacter()
+            local root = char and char:FindFirstChild("HumanoidRootPart")
+            if not root then task.wait(1) else
+                local best, bestDist
+                for _, egg in ipairs(FindObjects(CONFIG.EggNames)) do
+                    local d = (egg.Position - root.Position).Magnitude
+                    if not bestDist or d < bestDist then
+                        best, bestDist = egg, d
+                    end
+                end
+                if best then
+                    TeleportTo(CFrame.new(best.Position + Vector3.new(0, 3, 0)))
+                    FireNearbyPrompts(12)
+                    task.wait(0.5)
+                    -- return to base with the egg
+                    if CONFIG.BasePosition then
+                        TeleportTo(CFrame.new(CONFIG.BasePosition))
+                        FireNearbyPrompts(12)
+                        task.wait(0.5)
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- Auto Collect / Auto Train / Auto Rebirth (fire nearby prompts)
+task.spawn(function()
+    while true do
+        task.wait(0.4)
+        if CONFIG.AutoCollect or CONFIG.AutoTrain or CONFIG.AutoRebirth then
+            FireNearbyPrompts(14)
+        end
+    end
+end)
+
+--══════════════════════════════════════════════════════════════
+-- 6) BUILD THE UI
+--══════════════════════════════════════════════════════════════
+local UIWindow = UI.NewWindow("NOKS  ✦  Steal An Egg")
+
+-- ── FARM tab ──
+local farm = UIWindow.AddTab("FARM")
+farm.AddToggle("Auto Farm", CONFIG.AutoFarm).Set = function(v) CONFIG.AutoFarm = v end
+farm.AddToggle("Auto Collect", CONFIG.AutoCollect).Set = function(v) CONFIG.AutoCollect = v end
+farm.AddToggle("Auto Train (Treadmill)", CONFIG.AutoTrain).Set = function(v) CONFIG.AutoTrain = v end
+farm.AddToggle("Auto Rebirth", CONFIG.AutoRebirth).Set = function(v) CONFIG.AutoRebirth = v end
+farm.AddButton("Steal Nearest Egg (Manual)", function()
+    CONFIG.AutoFarm = true
+    task.wait(1)
+    CONFIG.AutoFarm = false
+end)
+
+-- ── PLAYER tab ──
+local player = UIWindow.AddTab("PLAYER")
+player.AddSlider("Walk Speed", 16, 300, CONFIG.WalkSpeed).Set = function(v) CONFIG.WalkSpeed = v end
+player.AddSlider("Jump Power", 50, 300, CONFIG.JumpPower).Set = function(v) CONFIG.JumpPower = v end
+player.AddToggle("Infinite Jump", CONFIG.InfiniteJump).Set = function(v) CONFIG.InfiniteJump = v end
+player.AddToggle("Noclip (Walk Through Walls)", CONFIG.Noclip).Set = function(v) CONFIG.Noclip = v end
+
+-- ── TELEPORT tab ──
+local tp = UIWindow.AddTab("TELEPORT")
+for _, biome in ipairs(CONFIG.Biomes) do
+    tp.AddButton("Teleport → " .. biome[1], function()
+        TeleportTo(biome[2])
+    end)
+end
+
+-- ── VISUALS tab ──
+local vis = UIWindow.AddTab("VISUALS")
+vis.AddToggle("ESP (See Eggs + Guards)", CONFIG.ESP).Set = function(v) CONFIG.ESP = v end
+
+-- toggle GUI with key
+UserInput.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == CONFIG.ToggleKey and not gameProcessed then
+        UIWindow.Frame.Visible = not UIWindow.Frame.Visible
+    end
+end)
+
+--══════════════════════════════════════════════════════════════
+-- 7) DONE
+--══════════════════════════════════════════════════════════════
+print("✅ NOKS loaded — press RightShift to open the menu")
